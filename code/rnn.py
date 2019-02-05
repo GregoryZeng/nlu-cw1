@@ -664,10 +664,11 @@ if __name__ == "__main__":
         S_dev = docs_to_indices(docs, word_to_num, 1, 1)
         X_dev, D_dev = seqs_to_lmXY(S_dev)
 
-        X_train = X_train[:train_size]
-        D_train = D_train[:train_size]
-        X_dev = X_dev[:dev_size]
-        D_dev = D_dev[:dev_size]
+        # COMMENT TO USE ALL DATA
+        # X_train = X_train[:train_size]
+        # D_train = D_train[:train_size]
+        # X_dev = X_dev[:dev_size]
+        # D_dev = D_dev[:dev_size]
 
         # q = best unigram frequency from omitted vocab
         # this is the best expected loss out of that set
@@ -677,16 +678,16 @@ if __name__ == "__main__":
         # --- your code here --- #
         ##########################
         model = RNN(vocab_size=vocab_size, hidden_dims=hdim, out_vocab_size=vocab_size)
-        run_loss = model.train(X=X_train, D=D_train, X_dev=X_dev, D_dev=D_dev, learning_rate=lr, back_steps=lookback)
+        run_loss = model.train(X=X_train[:25000], D=D_train[:25000], X_dev=X_dev[:dev_size], D_dev=D_dev[:dev_size], learning_rate=lr, back_steps=lookback)
 
         adjusted_loss = adjust_loss(run_loss,fraction_lost,q)
 
         print("Unadjusted: %.03f" % np.exp(run_loss))
         print("Adjusted for missing vocab: %.03f" % np.exp(adjusted_loss))
 
-        # np.save('rnn.U.npy',model.U)
-        # np.save('rnn.V.npy',model.V)
-        # np.save('rnn.W.npy',model.W)
+        np.save('rnn.U.npy',model.U)
+        np.save('rnn.V.npy',model.V)
+        np.save('rnn.W.npy',model.W)
 
         full_dev_loss = model.compute_mean_loss(X_dev,D_dev)
         full_dev_adj_loss = adjust_loss(full_dev_loss,fraction_lost,q)
