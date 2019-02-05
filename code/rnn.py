@@ -736,6 +736,7 @@ if __name__ == "__main__":
         hdim = int(sys.argv[3])
         lookback = int(sys.argv[4])
         lr = float(sys.argv[5])
+        epochs = int(sys.argv[6])
 
         # get the data set vocabulary
         vocab = pd.read_table(data_folder + "/vocab.wiki.txt", header=None, sep="\s+", index_col=0,
@@ -770,7 +771,7 @@ if __name__ == "__main__":
         model = RNN(vocab_size=vocab_size,hidden_dims=hdim,out_vocab_size=2)
 
         # model.train(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,learning_rate=lr,back_steps=lookback)
-        model.train_np(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,epochs=10,learning_rate=lr,anneal=5,back_steps=lookback)
+        model.train_np(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,epochs=epochs,learning_rate=lr,anneal=5,back_steps=lookback)
         acc = model.compute_acc_np(X_dev,D_dev)
 
         print("Accuracy: %.03f" % acc)
