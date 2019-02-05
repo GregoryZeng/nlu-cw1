@@ -154,6 +154,16 @@ class RNN(object):
 
         no return values
         '''
+        t = len(x) - 1
+        d_oh, x_oh = np.zeros((self.out_vocab_size, 1)), np.zeros((self.vocab_size, 1))
+        d_oh[d[0]] = 1
+        x_oh[x[t]] = 1
+
+        delta_out = d_oh - y[t][:, None]
+        self.deltaW += np.outer(delta_out, s[t][:, None])
+        delta_in = (self.W.T @ delta_out) * (s[t] * (1 - s[t]))[:, None]
+        self.deltaV += np.outer(delta_in, x_oh)
+        self.deltaU += np.outer(delta_in, s[t - 1][None, :])
 
     ##########################
     # --- your code here --- #
@@ -220,6 +230,22 @@ class RNN(object):
 
         no return values
         '''
+        t = len(x) - 1
+        d_oh, x_oh = np.zeros((self.out_vocab_size, 1)), np.zeros((self.vocab_size, 1))
+        d_oh[d[0]] = 1
+        x_oh[x[t]] = 1
+
+        delta_out = d_oh - y[t][:, None]
+        self.deltaW += np.outer(delta_out, s[t][:, None])
+        delta_in = (self.W.T @ delta_out) * (s[t] * (1 - s[t]))[:, None]
+        self.deltaV += np.outer(delta_in, x_oh)
+        self.deltaU += np.outer(delta_in, s[t - 1][None, :])
+        for t_past in reversed(range(max(0, t - steps), t)):
+            delta_in = (self.U.T @ delta_in) * ((s[t_past] * (1 - s[t_past]))[:, None])
+            x_tpast_oh = np.zeros((vocab_size, 1))
+            x_tpast_oh[x[t_past]] = 1
+            self.deltaV += np.outer(delta_in, x_tpast_oh)
+            self.deltaU += np.outer(delta_in, s[t_past - 1][:, None])
 
     ##########################
     # --- your code here --- #
@@ -265,6 +291,8 @@ class RNN(object):
         ##########################
         # --- your code here --- #
         ##########################
+        y, s = self.predict(x)
+        loss = -np.log(y[-1,d[0]])
 
         return loss
 
@@ -282,8 +310,10 @@ class RNN(object):
         ##########################
         # --- your code here --- #
         ##########################
+        y, s = self.predict(x)
 
-        return 0
+        return int(np.argmax(y[-1]) == d[0])
+
 
     def compare_num_pred(self, x, d):
         '''
@@ -737,8 +767,11 @@ if __name__ == "__main__":
         ##########################
         # --- your code here --- #
         ##########################
+        model = RNN(vocab_size=vocab_size,hidden_dims=hdim,out_vocab_size=2)
 
-        acc = 0.
+        # model.train(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,learning_rate=lr,back_steps=lookback)
+        model.train_np(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,epochs=10,learning_rate=lr,anneal=5,back_steps=lookback)
+        acc = model.compute_acc_np(X_dev,D_dev)
 
         print("Accuracy: %.03f" % acc)
 
