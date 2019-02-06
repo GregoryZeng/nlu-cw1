@@ -329,8 +329,9 @@ class RNN(object):
         ##########################
         # --- your code here --- #
         ##########################
+        y, s = self.predict(x)
 
-        return 0
+        return int(y[-1, d[0]] > y[-1, d[1]])
 
     def compute_acc_lmnp(self, X_dev, D_dev):
         '''
