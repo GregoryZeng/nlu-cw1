@@ -859,7 +859,7 @@ if __name__ == "__main__":
         X_dev = X_dev[:dev_size]
         D_dev = D_dev[:dev_size]
 
-        my_rnn = RNN(vocab_size, hdim, vocab_size)
+        my_rnn = RNN(vocab_size=vocab_size, hidden_dims=hdim, out_vocab_size=2)
         my_rnn.train_np(
             X_train,
             D_train,
@@ -872,12 +872,12 @@ if __name__ == "__main__":
 
         out_folder = "exp1"
 
-        np.save(out_folder + "/rnn.U_h{}_s{}_r{}_e{}.npy".format(
-            hdim, lookback, lr, epochs), my_rnn.U)
-        np.save(out_folder + "/rnn.V_h{}_s{}_r{}_e{}.npy".format(
-            hdim, lookback, lr, epochs), my_rnn.V)
-        np.save(out_folder + "/rnn.W_h{}_s{}_r{}_e{}.npy".format(
-            hdim, lookback, lr, epochs), my_rnn.W)
+        # np.save(out_folder + "/rnn.U_h{}_s{}_r{}_e{}.npy".format(
+        #     hdim, lookback, lr, epochs), my_rnn.U)
+        # np.save(out_folder + "/rnn.V_h{}_s{}_r{}_e{}.npy".format(
+        #     hdim, lookback, lr, epochs), my_rnn.V)
+        # np.save(out_folder + "/rnn.W_h{}_s{}_r{}_e{}.npy".format(
+        #     hdim, lookback, lr, epochs), my_rnn.W)
 
         print("Saved final learned matrices U, V and W to disk.")
 
@@ -895,7 +895,13 @@ if __name__ == "__main__":
         lr = float(sys.argv[5])
 
         # get the data set vocabulary
-        vocab = pd.read_table(data_folder + "/vocab.wiki.txt", header=None, sep="\s+", index_col=0, names=['count', 'freq'], )
+        vocab = pd.read_table(
+            data_folder + "/vocab.wiki.txt",
+            header=None,
+            sep="\s+",
+            index_col=0,
+            names=['count', 'freq'],
+        )
         num_to_word = dict(enumerate(vocab.index[:vocab_size]))
         word_to_num = invert_dict(num_to_word)
 

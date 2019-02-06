@@ -36,6 +36,61 @@ def load_np_dataset(fname):
             sents.append(sent)
     return sents
 
+# experiment on different kinds of data
+
+def load_np_data1(fname):
+    """ Give the subject and ask it to predict whether it is plural or singular """
+    sents = []
+    cnt = 0
+    with open(fname) as f:
+        for line in f:
+            if cnt == 0:
+                cnt += 1
+                continue
+            items = line.strip().split('\t')
+            subj_idx = int(items[1])
+            #verb_idx = int(items[2])
+            verb_pos = items[3]
+            sent = [verb_pos] + items[0].split()[subj_idx:subj_idx + 1]
+            sents.append(sent)
+    return sents
+
+
+def load_np_data2(fname):
+    """ uses the words from the subject index (inclusive)until the verb index."""
+    sents = []
+    cnt = 0
+    with open(fname) as f:
+        for line in f:
+            if cnt == 0:
+                cnt += 1
+                continue
+            items = line.strip().split('\t')
+            subj_idx = int(items[1])
+            verb_idx = int(items[2])
+            verb_pos = items[3]
+            sent = [verb_pos] + items[0].split()[subj_idx:verb_idx]
+            sents.append(sent)
+    return sents
+
+
+def load_np_data3(fname):
+    """the subject and the verb are at least 5 words apart """
+    sents = []
+    cnt = 0
+    with open(fname) as f:
+        for line in f:
+            if cnt == 0:
+                cnt += 1
+                continue
+            items = line.strip().split('\t')
+            verb_idx = int(items[2])
+            subj_idx = int(items[1])
+            verb_pos = items[3]
+            if verb_idx - subj_idx > 5:
+                sent = [verb_pos] + items[0].split()[:verb_idx]
+                sents.append(sent)
+    return sents
 
 def load_lm_np_dataset(fname):
     sents = []

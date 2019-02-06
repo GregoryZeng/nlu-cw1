@@ -345,6 +345,8 @@ class RNN(object):
 
         return acc
 
+
+
     def compute_mean_loss(self, X, D):
         '''
         compute the mean loss between predictions for corpus X and desired outputs in corpus D.
@@ -773,8 +775,8 @@ if __name__ == "__main__":
 
         # model.train(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,learning_rate=lr,back_steps=lookback)
         model.train_np(X=X_train,D=D_train,X_dev=X_dev,D_dev=D_dev,epochs=epochs,learning_rate=lr,anneal=5,back_steps=lookback)
-        acc = model.compute_acc_np(X_dev,D_dev)
 
+        acc = sum([model.compute_acc_np(X_dev[i], D_dev[i]) for i in range(len(X_dev))]) / len(X_dev)
         print("Accuracy: %.03f" % acc)
 
     if mode == "predict-lm":
@@ -805,8 +807,8 @@ if __name__ == "__main__":
         S_np_dev = docs_to_indices(docs, word_to_num, 1, 0)
         X_np_dev, D_np_dev = seqs_to_lmnpXY(S_np_dev)
 
-        X_np_dev = X_np_dev[:dev_size]
-        D_np_dev = D_np_dev[:dev_size]
+        # X_np_dev = X_np_dev[:dev_size]
+        # D_np_dev = D_np_dev[:dev_size]
 
         np_acc = r.compute_acc_lmnp(X_np_dev, D_np_dev)
 
@@ -820,3 +822,70 @@ if __name__ == "__main__":
         np_acc_test = r.compute_acc_lmnp(X_np_test, D_np_test)
 
         print('Number prediction accuracy on test set:', np_acc_test)
+
+    if mode == "exp1":
+        """ tested how well the network will do if we justgive it a noun, the subject, and ask it to predict whether it is plural or singular """
+
+        train_size = 25000
+        dev_size = 1000
+        vocab_size = 2000
+
+        epochs = 25
+
+        hdim = int(sys.argv[3])
+        lookback = int(sys.argv[4])
+        lr = float(sys.argv[5])
+
+        # get the data set vocabulary
+        vocab = pd.read_table(
+            data_folder + "/vocab.wiki.txt",
+            header=None,
+            sep="\s+",
+            index_col=0,
+            names=['count', 'freq'],
+        )
+        num_to_word = dict(enumerate(vocab.index[:vocab_size]))
+        word_to_num = invert_dict(num_to_word)
+
+        # load training data
+        sents = load_np_data1(data_folder + '/wiki-train.txt')
+        S_train = docs_to_indices(sents, word_to_num, 0, 0)
+        X_train, D_train = seqs_to_npXY(S_train)
+
+        X_train = X_train[:train_size]
+        Y_train = D_train[:train_size]
+
+        # load development data
+        sents = load_np_dataset(data_folder + '/wiki-dev.txt')
+        S_dev = docs_to_indices(sents, word_to_num, 0, 0)
+        X_dev, D_dev = seqs_to_npXY(S_dev)
+
+        # X_dev = X_dev[:dev_size]
+        # D_dev = D_dev[:dev_size]
+
+        model = RNN(vocab_size=vocab_size, hidden_dims=hdim, out_vocab_size=2)
+        model.train_np(
+            X_train,
+            D_train,
+            X_dev[:dev_size],
+            D_dev[:dev_size],
+            learning_rate=lr,
+            back_steps=lookback,
+            log=True,
+            epochs=epochs)
+
+        acc = sum([model.compute_acc_np(X_dev[i],D_dev[i]) for i in range(len(X_dev))])/len(X_dev)
+
+        print("Accuracy: %.03f" % acc)
+
+
+        # out_folder = "exp1"
+        #
+        # np.save(out_folder + "/rnn.U_h{}_s{}_r{}_e{}.npy".format(
+        #     hdim, lookback, lr, epochs), my_rnn.U)
+        # np.save(out_folder + "/rnn.V_h{}_s{}_r{}_e{}.npy".format(
+        #     hdim, lookback, lr, epochs), my_rnn.V)
+        # np.save(out_folder + "/rnn.W_h{}_s{}_r{}_e{}.npy".format(
+        #     hdim, lookback, lr, epochs), my_rnn.W)
+        #
+        # print("Saved final learned matrices U, V and W to disk.")
