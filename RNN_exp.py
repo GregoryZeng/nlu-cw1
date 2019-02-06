@@ -844,7 +844,7 @@ if __name__ == "__main__":
         word_to_num = invert_dict(num_to_word)
 
         # load training data
-        sents = load_np_dataset_C(data_folder + '/wiki-train.txt')
+        sents = load_np_data1(data_folder + '/wiki-train.txt')
         S_train = docs_to_indices(sents, word_to_num, 0, 0)
         X_train, D_train = seqs_to_npXY(S_train)
 
@@ -900,7 +900,7 @@ if __name__ == "__main__":
         word_to_num = invert_dict(num_to_word)
 
         # load training data
-        sents = load_np_dataset_B(data_folder + '/wiki-train.txt')
+        sents = load_np_data2(data_folder + '/wiki-train.txt')
         S_train = docs_to_indices(sents, word_to_num, 0, 0)
         X_train, D_train = seqs_to_npXY(S_train)
 
@@ -962,7 +962,7 @@ if __name__ == "__main__":
         word_to_num = invert_dict(num_to_word)
 
         # load training data
-        sents = load_np_dataset_D(data_folder + '/wiki-train.txt')
+        sents = load_np_data3(data_folder + '/wiki-train.txt')
         S_train = docs_to_indices(sents, word_to_num, 0, 0)
         X_train, D_train = seqs_to_npXY(S_train)
 
