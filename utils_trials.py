@@ -105,7 +105,7 @@ def load_np_data3(fname):
             verb_idx = int(items[2])
             subj_idx = int(items[1])
             verb_pos = items[3]
-            if verb_idx - subj_idx > 2:
+            if verb_idx - subj_idx > 5:
                 sent = [verb_pos] + items[0].split()[:verb_idx]
                 sents.append(sent)
     return sents
